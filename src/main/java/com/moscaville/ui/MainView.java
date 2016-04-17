@@ -17,9 +17,12 @@ import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.Tree;
+import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
+import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import javax.annotation.PostConstruct;
+import org.springframework.beans.factory.annotation.Autowired;
 
 /**
  *
@@ -36,6 +39,8 @@ public class MainView extends Panel implements View {
     private Button btnRun;
     private Tree trWorkArea;
     private TabSheet tsWorkArea;
+    @Autowired
+    ConnectionWindow connectionWindow;
 
     @PostConstruct
     private void init() {
@@ -54,6 +59,13 @@ public class MainView extends Panel implements View {
         btnConnections = createButton(buttonLayout, FontAwesome.DATABASE, "Connections");
         buttonLayout.addComponent(btnConnections);
         btnRun = createButton(buttonLayout, FontAwesome.PLAY, "Run");
+        btnConnections.addClickListener((Button.ClickEvent event) -> {
+            connectionWindow.center();
+            ((MainUI) UI.getCurrent()).addWindow(connectionWindow);
+        });
+        connectionWindow.addCloseListener((Window.CloseEvent e) -> {
+            ((MainUI) UI.getCurrent()).removeWindow(connectionWindow);
+        });
         buttonLayout.addComponent(btnRun);
         mainLayout.addComponent(buttonLayout);
     }
@@ -74,7 +86,7 @@ public class MainView extends Panel implements View {
     private void buildTrWorkArea() {
         trWorkArea = new Tree();
     }
-    
+
     private void buildTsWorkArea() {
         tsWorkArea = new TabSheet();
         tsWorkArea.setSizeFull();
@@ -98,7 +110,7 @@ public class MainView extends Panel implements View {
 
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
-        
+
     }
 
 }
