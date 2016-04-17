@@ -1,0 +1,15 @@
+target/
+*.class
+*.jar
+*.json
+*.zip
+*.tar
+*.gz
+*.txt
+nbactions.xml
+jrebel.xml
+rebel.xml
+nb-configuration.xml
+/.project
+/.settings/
+/nbproject/
