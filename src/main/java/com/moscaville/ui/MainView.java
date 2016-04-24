@@ -5,7 +5,10 @@
  */
 package com.moscaville.ui;
 
+import com.mongodb.DB;
+import com.mongodb.Mongo;
 import com.moscaville.data.DbConnectionProps;
+import com.moscaville.data.MongoConfig;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -23,6 +26,8 @@ import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import java.lang.reflect.InvocationTargetException;
+import java.net.UnknownHostException;
+import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -47,6 +52,8 @@ public class MainView extends Panel implements View {
     private TabSheet tsWorkArea;
     @Autowired
     ConnectionWindow connectionWindow;
+    @Autowired
+    MongoConfig mongoConfig;
 
     @PostConstruct
     private void init() {
@@ -104,7 +111,7 @@ public class MainView extends Panel implements View {
 
             if (trWorkArea.getValue() instanceof DbConnectionProps) {
                 DbConnectionProps dbConnectionProps = (DbConnectionProps) trWorkArea.getValue();
-                System.out.println(dbConnectionProps.getServer());
+                System.out.println(dbConnectionProps.getHost());
             }
         });
     }
@@ -146,13 +153,23 @@ public class MainView extends Panel implements View {
             DbConnectionProps dbConnectionProps = (DbConnectionProps) BeanUtils.cloneBean(connectionWindow.getDbConnectionProps());
             trWorkArea.addItem(dbConnectionProps);
             trWorkArea.setChildrenAllowed(dbConnectionProps, true);
-            for (int i = 0; i < 10; i++) {
-                String s = dbConnectionProps.getServer() + " col " + i;
-                trWorkArea.addItem(s);
-                trWorkArea.setParent(s, dbConnectionProps);
-                trWorkArea.setChildrenAllowed(s, false);
+            Mongo mongo = mongoConfig.mongo(dbConnectionProps);
+            Collection<DB> databases = mongo.getUsedDatabases();
+            for (DB db : databases) {
+                trWorkArea.addItem(db);
+                trWorkArea.setParent(db, dbConnectionProps);
+                for (String collection : db.getCollectionNames()) {
+                    trWorkArea.addItem(collection);
+                    trWorkArea.setParent(collection, db);
+                }
             }
-        } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex) {
+//            for (int i = 0; i < 10; i++) {
+//                String s = dbConnectionProps.getHost() + " col " + i;
+//                trWorkArea.addItem(s);
+//                trWorkArea.setParent(s, dbConnectionProps);
+//                trWorkArea.setChildrenAllowed(s, false);
+//            }
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException | UnknownHostException ex) {
             Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
         }
     }

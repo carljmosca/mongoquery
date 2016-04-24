@@ -31,8 +31,8 @@ import org.springframework.stereotype.Component;
 public class ConnectionWindow extends Window {
 
     private VerticalLayout mainLayout;
-    @PropertyId("server")
-    private TextField tfServer;
+    @PropertyId("host")
+    private TextField tfHost;
     @PropertyId("port")
     private TextField tfPort;
     @PropertyId("userName")
@@ -76,7 +76,7 @@ public class ConnectionWindow extends Window {
     }
 
     private void addFields() {
-        tfServer = addField("Server");
+        tfHost = addField("Host");
         tfPort = addField("Port");
         tfUserName = addField("Username");
         tfPassword = addField("Password");

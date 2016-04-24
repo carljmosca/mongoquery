@@ -13,21 +13,22 @@ import java.io.Serializable;
  */
 public class DbConnectionProps implements Serializable {
  
-    private String server;
+    private String host;
     private Integer port;
     private String userName;
     private String password;
     private String authenticationDb;
     
     public DbConnectionProps() {
+        port = new Integer(27017);
     }
 
-    public String getServer() {
-        return server;
+    public String getHost() {
+        return host;
     }
 
-    public void setServer(String server) {
-        this.server = server;
+    public void setHost(String host) {
+        this.host = host;
     }
 
     public Integer getPort() {
@@ -64,7 +65,7 @@ public class DbConnectionProps implements Serializable {
 
     @Override
     public String toString() {
-        return server ;
+        return host ;
     }
     
 }
