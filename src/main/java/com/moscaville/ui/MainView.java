@@ -142,13 +142,12 @@ public class MainView extends Panel implements View {
     }
 
     private void addDbConnection() {
-        DbConnectionProps dbConnectionProps;
         try {
-            dbConnectionProps = (DbConnectionProps) BeanUtils.cloneBean(connectionWindow.getDbConnectionProps());
+            DbConnectionProps dbConnectionProps = (DbConnectionProps) BeanUtils.cloneBean(connectionWindow.getDbConnectionProps());
             trWorkArea.addItem(dbConnectionProps);
             trWorkArea.setChildrenAllowed(dbConnectionProps, true);
             for (int i = 0; i < 10; i++) {
-                String s = "Collection Number " + i;
+                String s = dbConnectionProps.getServer() + " col " + i;
                 trWorkArea.addItem(s);
                 trWorkArea.setParent(s, dbConnectionProps);
                 trWorkArea.setChildrenAllowed(s, false);
