@@ -20,7 +20,6 @@ public class DbConnectionProps implements Serializable {
     private String authenticationDb;
     
     public DbConnectionProps() {
-        
     }
 
     public String getServer() {
@@ -61,6 +60,11 @@ public class DbConnectionProps implements Serializable {
 
     public void setAuthenticationDb(String authenticationDb) {
         this.authenticationDb = authenticationDb;
+    }
+
+    @Override
+    public String toString() {
+        return server ;
     }
     
 }

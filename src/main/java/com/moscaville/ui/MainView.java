@@ -5,6 +5,7 @@
  */
 package com.moscaville.ui;
 
+import com.moscaville.data.DbConnectionProps;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -13,7 +14,6 @@ import com.vaadin.spring.annotation.SpringUI;
 import com.vaadin.ui.Button;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.HorizontalSplitPanel;
-import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
 import com.vaadin.ui.TextArea;
@@ -22,7 +22,11 @@ import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
+import java.lang.reflect.InvocationTargetException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
+import org.apache.commons.beanutils.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 
 /**
@@ -72,6 +76,9 @@ public class MainView extends Panel implements View {
         });
         connectionWindow.addCloseListener((Window.CloseEvent e) -> {
             ((MainUI) UI.getCurrent()).removeWindow(connectionWindow);
+            if (connectionWindow.isConnected()) {
+                addDbConnection();
+            }
         });
         buttonLayout.addComponent(btnRun);
         mainLayout.addComponent(buttonLayout);
@@ -80,7 +87,7 @@ public class MainView extends Panel implements View {
     private void buildWorkArea() {
         spWorkArea = new HorizontalSplitPanel();
         spWorkArea.setSizeFull();
-        spWorkArea.setSplitPosition(150, Unit.PIXELS);
+        spWorkArea.setSplitPosition(225, Unit.PIXELS);
 
         buildTrWorkArea();
         buildTsWorkArea();
@@ -92,6 +99,14 @@ public class MainView extends Panel implements View {
 
     private void buildTrWorkArea() {
         trWorkArea = new Tree();
+        trWorkArea.setMultiSelect(false);
+        trWorkArea.addExpandListener((Tree.ExpandEvent event) -> {
+
+            if (trWorkArea.getValue() instanceof DbConnectionProps) {
+                DbConnectionProps dbConnectionProps = (DbConnectionProps) trWorkArea.getValue();
+                System.out.println(dbConnectionProps.getServer());
+            }
+        });
     }
 
     private void buildTsWorkArea() {
@@ -105,12 +120,9 @@ public class MainView extends Panel implements View {
 
     private void createQuery() {
         final VerticalLayout layout = new VerticalLayout();
-        //Label label = new Label("test");
-        //layout.addComponent(label);
         layout.setHeight("100%");
         layout.setMargin(true);
         TextArea textArea = new TextArea();
-        //textArea.setHeight("100%");
         textArea.setSizeFull();
         layout.addComponent(textArea);
         layout.setExpandRatio(textArea, 1.0f);
@@ -127,6 +139,23 @@ public class MainView extends Panel implements View {
     @Override
     public void enter(ViewChangeListener.ViewChangeEvent event) {
 
+    }
+
+    private void addDbConnection() {
+        DbConnectionProps dbConnectionProps;
+        try {
+            dbConnectionProps = (DbConnectionProps) BeanUtils.cloneBean(connectionWindow.getDbConnectionProps());
+            trWorkArea.addItem(dbConnectionProps);
+            trWorkArea.setChildrenAllowed(dbConnectionProps, true);
+            for (int i = 0; i < 10; i++) {
+                String s = "Collection Number " + i;
+                trWorkArea.addItem(s);
+                trWorkArea.setParent(s, dbConnectionProps);
+                trWorkArea.setChildrenAllowed(s, false);
+            }
+        } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException ex) {
+            Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
+        }
     }
 
 }
