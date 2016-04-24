@@ -16,6 +16,7 @@ import com.vaadin.ui.HorizontalSplitPanel;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.Panel;
 import com.vaadin.ui.TabSheet;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.Tree;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -36,6 +37,7 @@ public class MainView extends Panel implements View {
     private HorizontalLayout buttonLayout;
     private HorizontalSplitPanel spWorkArea;
     private Button btnConnections;
+    private Button btnNewQuery;
     private Button btnRun;
     private Tree trWorkArea;
     private TabSheet tsWorkArea;
@@ -58,6 +60,11 @@ public class MainView extends Panel implements View {
         buttonLayout.setHeight("50px");
         btnConnections = createButton(buttonLayout, FontAwesome.DATABASE, "Connections");
         buttonLayout.addComponent(btnConnections);
+        btnNewQuery = createButton(buttonLayout, FontAwesome.FILES_O, "New Query");
+        buttonLayout.addComponent(btnNewQuery);
+        btnNewQuery.addClickListener((Button.ClickEvent event) -> {
+            createQuery();
+        });
         btnRun = createButton(buttonLayout, FontAwesome.PLAY, "Run");
         btnConnections.addClickListener((Button.ClickEvent event) -> {
             connectionWindow.center();
@@ -90,15 +97,24 @@ public class MainView extends Panel implements View {
     private void buildTsWorkArea() {
         tsWorkArea = new TabSheet();
         tsWorkArea.setSizeFull();
-        tsWorkArea.setHeight("-1px");
+        tsWorkArea.setHeight("100%");
         tsWorkArea.addStyleName(ValoTheme.TABSHEET_FRAMED);
         tsWorkArea.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
 
-        for (int i = 1; i < 8; i++) {
-            final VerticalLayout layout = new VerticalLayout(new Label("test"));
-            layout.setMargin(true);
-            tsWorkArea.addTab(layout, "Tab " + i);
-        }
+    }
+
+    private void createQuery() {
+        final VerticalLayout layout = new VerticalLayout();
+        //Label label = new Label("test");
+        //layout.addComponent(label);
+        layout.setHeight("100%");
+        layout.setMargin(true);
+        TextArea textArea = new TextArea();
+        //textArea.setHeight("100%");
+        textArea.setSizeFull();
+        layout.addComponent(textArea);
+        layout.setExpandRatio(textArea, 1.0f);
+        tsWorkArea.addTab(layout, "Untitled");
     }
 
     private Button createButton(HorizontalLayout horizontalLayout, Resource icon, String description) {
