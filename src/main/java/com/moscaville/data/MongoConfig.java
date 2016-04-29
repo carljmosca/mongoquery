@@ -10,8 +10,7 @@ import com.mongodb.MongoClient;
 import com.mongodb.MongoCredential;
 import com.mongodb.ServerAddress;
 import java.net.UnknownHostException;
-import static java.util.Collections.singletonList;
-import org.springframework.context.annotation.Bean;
+import java.util.Arrays;
 import org.springframework.context.annotation.Configuration;
 
 /**
@@ -21,10 +20,22 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class MongoConfig {
 
-    @Bean
     public Mongo mongo(DbConnectionProps dbConnectionProps) throws UnknownHostException {
-        return new MongoClient(singletonList(new ServerAddress(dbConnectionProps.getHost(), dbConnectionProps.getPort())),
-                singletonList(MongoCredential.createCredential(dbConnectionProps.getUserName(), 
-                        dbConnectionProps.getAuthenticationDb(), dbConnectionProps.getPassword().toCharArray())));
+
+        MongoClient mongo;
+        if (dbConnectionProps.getUserName() != null && !dbConnectionProps.getUserName().isEmpty()) {
+            mongo = new MongoClient(
+                    new ServerAddress(dbConnectionProps.getHost(), dbConnectionProps.getPort()),
+                    Arrays.asList(MongoCredential.createMongoCRCredential(
+                            dbConnectionProps.getAuthenticationDb(),
+                            dbConnectionProps.getUserName(),
+                            dbConnectionProps.getPassword().toCharArray())));
+        } else {
+            mongo = new MongoClient(dbConnectionProps.getHost(), dbConnectionProps.getPort());
+        }
+        return mongo;
+//        return new MongoClient(singletonList(new ServerAddress(dbConnectionProps.getHost(), dbConnectionProps.getPort())),
+//                singletonList(MongoCredential.createCredential(dbConnectionProps.getUserName(), 
+//                        dbConnectionProps.getAuthenticationDb(), dbConnectionProps.getPassword().toCharArray())));
     }
 }

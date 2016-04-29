@@ -6,9 +6,13 @@
 package com.moscaville.ui;
 
 import com.mongodb.DB;
+import com.mongodb.DBCollection;
+import com.mongodb.DBCursor;
+import com.mongodb.DBObject;
 import com.mongodb.Mongo;
 import com.moscaville.data.DbConnectionProps;
 import com.moscaville.data.MongoConfig;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.navigator.View;
 import com.vaadin.navigator.ViewChangeListener;
 import com.vaadin.server.FontAwesome;
@@ -27,7 +31,7 @@ import com.vaadin.ui.Window;
 import com.vaadin.ui.themes.ValoTheme;
 import java.lang.reflect.InvocationTargetException;
 import java.net.UnknownHostException;
-import java.util.Collection;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.annotation.PostConstruct;
@@ -111,7 +115,14 @@ public class MainView extends Panel implements View {
 
             if (trWorkArea.getValue() instanceof DbConnectionProps) {
                 DbConnectionProps dbConnectionProps = (DbConnectionProps) trWorkArea.getValue();
-                System.out.println(dbConnectionProps.getHost());
+            } else if (trWorkArea.getValue() instanceof String) {
+
+            }
+        });
+        trWorkArea.addItemClickListener((ItemClickEvent event) -> {
+            if (event.getItemId() instanceof DBCollection) {
+                DBCollection dbCollection = (DBCollection) event.getItemId();
+                tsWorkArea.addTab(new DbCollectionComponent(dbCollection));
             }
         });
     }
@@ -122,7 +133,6 @@ public class MainView extends Panel implements View {
         tsWorkArea.setHeight("100%");
         tsWorkArea.addStyleName(ValoTheme.TABSHEET_FRAMED);
         tsWorkArea.addStyleName(ValoTheme.TABSHEET_PADDED_TABBAR);
-
     }
 
     private void createQuery() {
@@ -154,21 +164,17 @@ public class MainView extends Panel implements View {
             trWorkArea.addItem(dbConnectionProps);
             trWorkArea.setChildrenAllowed(dbConnectionProps, true);
             Mongo mongo = mongoConfig.mongo(dbConnectionProps);
-            Collection<DB> databases = mongo.getUsedDatabases();
-            for (DB db : databases) {
-                trWorkArea.addItem(db);
-                trWorkArea.setParent(db, dbConnectionProps);
-                for (String collection : db.getCollectionNames()) {
+            List<String> databases = mongo.getDatabaseNames();
+            for (String databaseName : databases) {
+                DB database = mongo.getDB(databaseName);
+                trWorkArea.addItem(database);
+                trWorkArea.setParent(database, dbConnectionProps);
+                for (String collectionName : database.getCollectionNames()) {
+                    DBCollection collection = database.getCollection(collectionName);
                     trWorkArea.addItem(collection);
-                    trWorkArea.setParent(collection, db);
+                    trWorkArea.setParent(collection, database);
                 }
             }
-//            for (int i = 0; i < 10; i++) {
-//                String s = dbConnectionProps.getHost() + " col " + i;
-//                trWorkArea.addItem(s);
-//                trWorkArea.setParent(s, dbConnectionProps);
-//                trWorkArea.setChildrenAllowed(s, false);
-//            }
         } catch (IllegalAccessException | InstantiationException | InvocationTargetException | NoSuchMethodException | UnknownHostException ex) {
             Logger.getLogger(MainView.class.getName()).log(Level.SEVERE, null, ex);
         }
