@@ -27,8 +27,8 @@ public class MongoConfig {
             mongo = new MongoClient(
                     new ServerAddress(dbConnectionProps.getHost(), dbConnectionProps.getPort()),
                     Arrays.asList(MongoCredential.createMongoCRCredential(
-                            dbConnectionProps.getAuthenticationDb(),
                             dbConnectionProps.getUserName(),
+                            dbConnectionProps.getAuthenticationDb(),
                             dbConnectionProps.getPassword().toCharArray())));
         } else {
             mongo = new MongoClient(dbConnectionProps.getHost(), dbConnectionProps.getPort());
